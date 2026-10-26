@@ -1,0 +1,79 @@
+# Casa de Leilões: sobe banco, API e front com um único comando:
+#
+#   docker compose up --build
+#
+# Todas as variáveis têm valor padrão seguro para DESENVOLVIMENTO local.
+# Para produção, copie .env.example para .env e troque os segredos.
+
+name: leilao
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-leilao}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-leilao}
+      POSTGRES_DB: ${POSTGRES_DB:-leilao}
+    volumes:
+      - leilao_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-leilao} -d ${POSTGRES_DB:-leilao}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    # O banco NÃO é publicado no host: só a API o alcança pela rede interna.
+    # Para acessá-lo localmente use o arquivo docker-compose.dev.yml (veja o README).
+
+  api:
+    build:
+      context: ./apps/api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-leilao}:${POSTGRES_PASSWORD:-leilao}@db:5432/${POSTGRES_DB:-leilao}?schema=public
+      JWT_SECRET: ${JWT_SECRET:-dev-only-jwt-secret-change-me-in-production}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      AUDIT_SECRET: ${AUDIT_SECRET:-dev-only-audit-secret-change-me-in-production}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      SEED_ON_BOOT: ${SEED_ON_BOOT:-true}
+      CATALOG_API_URL: ${CATALOG_API_URL:-https://openaccess-api.clevelandart.org/api}
+      CATALOG_TIMEOUT_MS: ${CATALOG_TIMEOUT_MS:-5000}
+    ports:
+      - "${API_PORT:-4000}:4000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  web:
+    build:
+      context: ./apps/web
+      args:
+        # Endereço da API visto pelo NAVEGADOR (é embutido no build do Next.js).
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000}
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+volumes:
+  leilao_pgdata:

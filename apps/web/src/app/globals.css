@@ -1,0 +1,249 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* Fontes empacotadas localmente (@fontsource): sem dependência de rede no build. */
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Fraunces Variable", ui-serif, Georgia, "Times New Roman", serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-brand-1: var(--brand-1);
+  --color-brand-2: var(--brand-2);
+  --color-brand-3: var(--brand-3);
+
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 6px);
+  --radius-2xl: calc(var(--radius) + 12px);
+  --radius-3xl: calc(var(--radius) + 18px);
+
+  --animate-float: float 9s ease-in-out infinite;
+  --animate-shimmer: shimmer 2.2s linear infinite;
+  --animate-aurora: aurora 18s ease-in-out infinite alternate;
+  --animate-pop: pop 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.4);
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(var(--tilt, 0deg)); }
+    50% { transform: translateY(-10px) rotate(var(--tilt, 0deg)); }
+  }
+  @keyframes shimmer {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
+  }
+  @keyframes aurora {
+    0% { transform: translate3d(0, 0, 0) scale(1); }
+    50% { transform: translate3d(4%, -3%, 0) scale(1.08); }
+    100% { transform: translate3d(-3%, 4%, 0) scale(0.96); }
+  }
+  @keyframes pop {
+    0% { transform: scale(0.96); opacity: 0.6; }
+    60% { transform: scale(1.03); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+}
+
+/*
+ * Identidade "galeria": papel quente e grafite, com um único acento discreto
+ * em bronze envelhecido. Cores de estado (ao vivo, ganhando, superado) são suaves.
+ */
+:root {
+  --radius: 1rem;
+  --background: oklch(0.982 0.004 85);
+  --foreground: oklch(0.23 0.01 60);
+  --card: oklch(0.995 0.002 85);
+  --card-foreground: oklch(0.23 0.01 60);
+  --popover: oklch(0.995 0.002 85);
+  --popover-foreground: oklch(0.23 0.01 60);
+  --primary: oklch(0.28 0.012 60);
+  --primary-foreground: oklch(0.98 0.004 85);
+  --secondary: oklch(0.95 0.006 80);
+  --secondary-foreground: oklch(0.28 0.012 60);
+  --muted: oklch(0.955 0.005 80);
+  --muted-foreground: oklch(0.5 0.012 60);
+  --accent: oklch(0.94 0.012 75);
+  --accent-foreground: oklch(0.3 0.02 60);
+  --destructive: oklch(0.52 0.14 27);
+  --destructive-foreground: oklch(0.98 0 0);
+  --success: oklch(0.5 0.08 155);
+  --success-foreground: oklch(0.98 0 0);
+  --warning: oklch(0.76 0.1 75);
+  --warning-foreground: oklch(0.3 0.05 60);
+  --border: oklch(0.23 0.01 60 / 10%);
+  --input: oklch(0.23 0.01 60 / 15%);
+  --ring: oklch(0.55 0.06 70);
+
+  /* Acento: bronze envelhecido (marca, detalhes) e grafite (superfícies de destaque). */
+  --brand-1: oklch(0.42 0.03 60);
+  --brand-2: oklch(0.52 0.05 65);
+  --brand-3: oklch(0.64 0.07 75);
+  --deep-1: oklch(0.26 0.01 60);
+  --deep-2: oklch(0.33 0.016 62);
+
+  --shadow-glow: 0 8px 22px -12px oklch(0.23 0.01 60 / 35%);
+  --shadow-card: 0 1px 2px oklch(0.23 0.01 60 / 4%), 0 12px 30px -18px oklch(0.23 0.01 60 / 18%);
+}
+
+.dark {
+  --background: oklch(0.17 0.005 60);
+  --foreground: oklch(0.94 0.006 80);
+  --card: oklch(0.205 0.006 60);
+  --card-foreground: oklch(0.94 0.006 80);
+  --popover: oklch(0.22 0.007 60);
+  --popover-foreground: oklch(0.94 0.006 80);
+  --primary: oklch(0.86 0.03 80);
+  --primary-foreground: oklch(0.2 0.008 60);
+  --secondary: oklch(0.26 0.007 60);
+  --secondary-foreground: oklch(0.94 0.006 80);
+  --muted: oklch(0.24 0.006 60);
+  --muted-foreground: oklch(0.7 0.01 70);
+  --accent: oklch(0.27 0.01 65);
+  --accent-foreground: oklch(0.92 0.015 80);
+  --destructive: oklch(0.64 0.13 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --success: oklch(0.7 0.09 155);
+  --success-foreground: oklch(0.18 0.02 155);
+  --warning: oklch(0.8 0.09 78);
+  --warning-foreground: oklch(0.22 0.03 60);
+  --border: oklch(1 0 0 / 9%);
+  --input: oklch(1 0 0 / 13%);
+  --ring: oklch(0.72 0.06 75);
+
+  --brand-1: oklch(0.6 0.03 65);
+  --brand-2: oklch(0.7 0.05 72);
+  --brand-3: oklch(0.8 0.07 80);
+  --deep-1: oklch(0.3 0.01 60);
+  --deep-2: oklch(0.37 0.018 65);
+
+  --shadow-glow: 0 8px 24px -12px oklch(0 0 0 / 60%);
+  --shadow-card: 0 1px 0 oklch(1 0 0 / 4%) inset, 0 16px 36px -22px oklch(0 0 0 / 70%);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+  ::selection {
+    background: oklch(0.64 0.07 75 / 30%);
+  }
+  /* Respeita quem prefere menos movimento. */
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+
+/* Utilitários próprios (com @utility funcionam com variantes: hover:, group-hover:, dark: ...). */
+@utility font-display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  letter-spacing: -0.02em;
+}
+
+/* Degradê-assinatura (decorativo: marca, ícones, bordas). */
+@utility bg-brand {
+  background-image: linear-gradient(120deg, var(--brand-1), var(--brand-2) 55%, var(--brand-3));
+}
+
+/* Variação profunda, com contraste suficiente para texto branco (botões, lance atual). */
+@utility bg-brand-deep {
+  background-image: linear-gradient(135deg, var(--deep-1), var(--deep-2));
+}
+
+@utility text-brand {
+  background-image: linear-gradient(110deg, var(--brand-1), var(--brand-2) 50%, var(--brand-3));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility shadow-glow {
+  box-shadow: var(--shadow-glow);
+}
+
+@utility shadow-card {
+  box-shadow: var(--shadow-card);
+}
+
+/* Superfície de vidro (cabeçalho, selos sobre imagens). */
+@utility glass {
+  background-color: color-mix(in oklch, var(--card) 72%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
+  backdrop-filter: blur(18px) saturate(1.6);
+}
+
+/* Borda em degradê que aparece no hover/foco (o elemento precisa ser `relative`). */
+@utility ring-brand-hover {
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1.5px;
+    border-radius: inherit;
+    background: linear-gradient(130deg, var(--brand-1), var(--brand-2), var(--brand-3));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 1;
+  }
+  &:hover::before,
+  &:focus-within::before {
+    opacity: 1;
+  }
+}
+
+/* Textura de "ruído" sutil, dá corpo a superfícies em degradê. */
+@utility bg-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+@utility bg-dots {
+  background-image: radial-gradient(color-mix(in oklch, var(--foreground) 14%, transparent) 1px, transparent 1px);
+  background-size: 22px 22px;
+}

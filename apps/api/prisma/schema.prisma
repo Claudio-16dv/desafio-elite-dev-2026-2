@@ -1,0 +1,160 @@
+// Modelo de dados da Casa de Leilões.
+//
+// Convenções:
+//  - Todos os valores monetários são inteiros em CENTAVOS (BRL). Nada de float.
+//  - O histórico de lances (Bid) é uma cadeia de hashes HMAC-SHA256 por lote.
+//    Veja src/modules/integrity/hash-chain.ts e a seção 7 do README.
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  AUCTIONEER // leiloeiro (vendedor)
+  BIDDER // licitante (cliente)
+}
+
+enum WalletTransactionType {
+  DEPOSIT // depósito simulado
+  PURCHASE_DEBIT // débito do vencedor na liquidação
+  SALE_CREDIT // crédito do leiloeiro na liquidação
+}
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         Role
+  createdAt    DateTime @default(now())
+
+  wallet       Wallet?
+  lotsSold     Lot[]     @relation("LotSeller")
+  lotsLeader   Lot[]     @relation("LotLeader")
+  lotsWon      Lot[]     @relation("LotWinner")
+  bids         Bid[]
+  receiptsWon  Receipt[] @relation("ReceiptWinner")
+  receiptsSold Receipt[] @relation("ReceiptSeller")
+}
+
+model Wallet {
+  userId         String   @id @db.Uuid
+  // Saldo total (inclui o valor comprometido).
+  balanceCents   Int      @default(0)
+  // Soma dos lances em que o usuário é o líder atual. Disponível = total - comprometido.
+  committedCents Int      @default(0)
+  updatedAt      DateTime @updatedAt
+
+  user         User                @relation(fields: [userId], references: [id], onDelete: Restrict)
+  transactions WalletTransaction[]
+}
+
+model WalletTransaction {
+  id                String                @id @default(uuid()) @db.Uuid
+  userId            String                @db.Uuid
+  type              WalletTransactionType
+  // Assinado: positivo = entrada, negativo = saída.
+  amountCents       Int
+  balanceAfterCents Int
+  lotId             String?               @db.Uuid
+  createdAt         DateTime              @default(now())
+
+  wallet Wallet @relation(fields: [userId], references: [userId], onDelete: Restrict)
+
+  @@index([userId, createdAt])
+}
+
+model Lot {
+  id       String @id @default(uuid()) @db.Uuid
+  sellerId String @db.Uuid
+
+  // Snapshot do item da API externa: o lote continua íntegro mesmo se a API cair.
+  source      String
+  externalId  String
+  sourceUrl   String?
+  title       String
+  subtitle    String?
+  // Observação opcional escrita pelo leiloeiro (condições, procedência etc.).
+  description String?
+  imageUrl    String
+  attributes  Json
+
+  startingBidCents  Int
+  minIncrementCents Int
+  startsAt          DateTime
+  // Fim originalmente agendado (endsAt pode ser prorrogado pelo anti-sniping).
+  originalEndsAt    DateTime
+  endsAt            DateTime
+
+  // Estado derivado dos lances (mantido na mesma transação do lance).
+  currentBidCents Int?
+  leaderId        String? @db.Uuid
+  bidCount        Int     @default(0)
+  // Cabeça da cadeia de hashes e selo HMAC do resumo + regras do lote
+  // (detecta remoção de lances finais e alteração de valores/datas).
+  chainHeadHash   String?
+  chainSeal       String
+
+  canceledAt      DateTime?
+  settledAt       DateTime?
+  winnerId        String?   @db.Uuid
+  finalPriceCents Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  seller  User     @relation("LotSeller", fields: [sellerId], references: [id], onDelete: Restrict)
+  leader  User?    @relation("LotLeader", fields: [leaderId], references: [id], onDelete: Restrict)
+  winner  User?    @relation("LotWinner", fields: [winnerId], references: [id], onDelete: Restrict)
+  bids    Bid[]
+  receipt Receipt?
+
+  @@index([sellerId, createdAt])
+  @@index([startsAt])
+  @@index([endsAt])
+  @@index([settledAt, canceledAt, endsAt])
+}
+
+model Bid {
+  id          String   @id @default(uuid()) @db.Uuid
+  lotId       String   @db.Uuid
+  bidderId    String   @db.Uuid
+  // 1, 2, 3... sem buracos dentro de cada lote.
+  sequence    Int
+  amountCents Int
+  placedAt    DateTime
+  // HMAC(sequence, lote, licitante, valor, instante, hash anterior).
+  prevHash    String
+  hash        String
+
+  lot    Lot  @relation(fields: [lotId], references: [id], onDelete: Restrict)
+  bidder User @relation(fields: [bidderId], references: [id], onDelete: Restrict)
+
+  @@unique([lotId, sequence])
+  @@index([bidderId, lotId])
+}
+
+model Receipt {
+  id              String   @id @default(uuid()) @db.Uuid
+  // Código público e imprevisível usado no link de compartilhamento.
+  code            String   @unique
+  lotId           String   @unique @db.Uuid
+  winnerId        String   @db.Uuid
+  sellerId        String   @db.Uuid
+  finalPriceCents Int
+  bidCount        Int
+  chainHeadHash   String
+  issuedAt        DateTime
+  // HMAC dos campos acima: detecta adulteração do comprovante.
+  seal            String
+
+  lot    Lot  @relation(fields: [lotId], references: [id], onDelete: Restrict)
+  winner User @relation("ReceiptWinner", fields: [winnerId], references: [id], onDelete: Restrict)
+  seller User @relation("ReceiptSeller", fields: [sellerId], references: [id], onDelete: Restrict)
+}
