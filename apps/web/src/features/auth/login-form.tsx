@@ -13,12 +13,6 @@ import { errorMessage } from '@/lib/api-client';
 import { useAuth } from './auth-provider';
 import { safeRedirectPath } from './safe-redirect';
 
-const DEMO_ACCOUNTS = [
-  { label: 'Leiloeiro', email: 'leiloeiro@leilao.dev' },
-  { label: 'Licitante 1 (Ana)', email: 'licitante1@leilao.dev' },
-  { label: 'Licitante 2 (Bruno)', email: 'licitante2@leilao.dev' },
-];
-
 export function LoginForm() {
   const { login } = useAuth();
   const router = useRouter();
@@ -74,26 +68,6 @@ export function LoginForm() {
             {pending && <Loader2 className="animate-spin" />} Entrar
           </Button>
         </form>
-
-        <div className="mt-6 rounded-2xl border border-dashed bg-accent/40 p-4 text-sm">
-          <p className="mb-2 font-medium">Contas de demonstração (senha: senha123)</p>
-          <div className="flex flex-wrap gap-2">
-            {DEMO_ACCOUNTS.map((account) => (
-              <Button
-                key={account.email}
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setEmail(account.email);
-                  setPassword('senha123');
-                }}
-              >
-                {account.label}
-              </Button>
-            ))}
-          </div>
-        </div>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Ainda não tem conta?{' '}

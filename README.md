@@ -2,13 +2,26 @@
 
 Casa de Leilões online feita para o **teste técnico Elite Dev da Verzel**. Um **leiloeiro** monta lotes a partir de itens de uma API pública de acervo de museu; **licitantes** depositam saldo simulado, disputam os lotes com lances **ao vivo** e, ao vencer, recebem um **comprovante compartilhável por link**. Qualquer pessoa, **sem login**, pode **auditar** o histórico de lances de um lote e ver se ele foi adulterado.
 
-- **Link do deploy:** _(preencher após o deploy)_
+- **Link do deploy:** https://p01--web--28jn9rcnlbfp.code.run
+- **API (deploy):** https://p01--nestjs-api--28jn9rcnlbfp.code.run/health
 - **Repositório:** este (monorepo: `apps/api` + `apps/web`)
+
+### Acessos para avaliação
+
+Todas as contas usam a senha **`senha123`** (no deploy e no Docker local):
+
+| Perfil | E-mail | O que dá para ver |
+|---|---|---|
+| Leiloeiro | `leiloeiro@leilao.dev` | Painel com lotes ao vivo, agendados para as próximas semanas, vendidos e sem vencedor; criação e cancelamento de lotes |
+| Licitante 1 (Ana) | `licitante1@leilao.dev` | Lotes em que está ganhando ou foi superada, arremates com comprovante, carteira |
+| Licitante 2 (Bruno) | `licitante2@leilao.dev` | Idem, do lado do outro licitante (use em outra janela para ver o tempo real) |
+
+A auditoria (`/audit/<id-do-lote>`) e os comprovantes (`/receipts/<código>`) são públicos e não exigem login.
 
 ## Sumário
 
 1. [Como rodar (um comando)](#1-como-rodar-um-comando)
-2. [Contas de demonstração](#2-contas-de-demonstração)
+2. [Contas de demonstração](#2-contas-de-demonstração) (resumo em [Acessos para avaliação](#acessos-para-avaliação))
 3. [Roteiro de teste (5 minutos)](#3-roteiro-de-teste-5-minutos)
 4. [Stack e por quê](#4-stack-e-por-quê)
 5. [Arquitetura e organização do código](#5-arquitetura-e-organização-do-código)
