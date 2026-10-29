@@ -370,3 +370,17 @@ Navegador ── HTTPS ──► web (https://…code.run)
 ```
 
 > O front lê o endereço da API em **tempo de execução** (variável `API_URL`, veja `apps/web/src/lib/env.ts`), então a mesma imagem serve em qualquer ambiente e o endereço da API pode ser definido **depois** de criada. Nenhum _build argument_ é necessário.
+
+---
+
+## 14. Uso de IA
+
+Usei o Kiro, um assistente de IA, como ferramenta para ganhar produtividade, principalmente na escrita de código repetitivo, nos testes automatizados e na documentação. As decisões e a responsabilidade pelo projeto foram minhas:
+
+- **Arquitetura:** defini a stack (Next.js com shadcn/ui no front, NestJS com Prisma e PostgreSQL no back, Docker), a separação em módulos por responsabilidade e a organização das pastas. Também decidi o modelo de dados e as regras de negócio a partir do enunciado.
+- **Revisão de código:** revisei o código gerado e ajustei o que não seguia o padrão que eu queria, incluindo mudanças de estrutura, nomes e comportamento.
+- **Design do site:** a identidade visual, o layout das telas e os ajustes de interface foram feitos por mim.
+- **Testes manuais:** validei os fluxos no navegador: disputa em tempo real entre dois licitantes, mensagens de recusa de lance, carteira, comprovante, auditoria pública e criação e cancelamento de lotes pelo leiloeiro.
+- **Deploy:** escolhi a plataforma (Northflank), configurei os serviços, o banco PostgreSQL, as variáveis de ambiente, o CORS e os health checks, e publiquei a aplicação.
+
+Na prática, a IA gerou boa parte do código e dos testes a partir das minhas instruções, e eu conduzi, revisei e validei cada etapa até a entrega.
