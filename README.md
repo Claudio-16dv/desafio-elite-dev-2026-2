@@ -369,6 +369,4 @@ Navegador ── HTTPS ──► web (https://…code.run)
           └─ HTTPS/WSS ► api (https://…code.run)
 ```
 
-Sem Vercel + banco gratuito porque a API precisa de um processo **sempre ligado** (agendador de liquidação e WebSocket) e de um banco que não durma nem expire; aqui os dois ficam sempre ativos.
-
 > O front lê o endereço da API em **tempo de execução** (variável `API_URL`, veja `apps/web/src/lib/env.ts`), então a mesma imagem serve em qualquer ambiente e o endereço da API pode ser definido **depois** de criada. Nenhum _build argument_ é necessário.
